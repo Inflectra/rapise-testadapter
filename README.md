@@ -1,2 +1,2 @@
 # rapise-testadapter
-TestAdapter for VSTest
+Rapise TestAdapter for VSTest
