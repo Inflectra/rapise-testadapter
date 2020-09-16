@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1.0.6</version>
+    <title>$title$</title>
+    <authors>Team Rapise</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Inflectra/rapise-testadapter</projectUrl>
+    <icon>images/Rapise128.png</icon>
+    <description>Rapise TestAdapter for VSTest</description>
+    <releaseNotes>Test version.</releaseNotes>
+    <copyright>$copyright$</copyright>
+    <tags>rapise vstest testadapter</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll" target="lib\net472\Microsoft.VisualStudio.TestPlatform.ObjectModel.dll"/>
+    <file src="bin\Release\Microsoft.TestPlatform.CoreUtilities.dll" target="lib\net472\Microsoft.TestPlatform.CoreUtilities.dll"/>
+    <file src="bin\Release\Microsoft.TestPlatform.PlatformAbstractions.dll" target="lib\net472\Microsoft.TestPlatform.PlatformAbstractions.dll"/>
+    <file src="bin\Release\NuGet.Frameworks.dll" target="lib\net472\NuGet.Frameworks.dll"/>
+    <file src="bin\Release\System.Reflection.Metadata.dll" target="lib\net472\System.Reflection.Metadata.dll"/>
+    <file src="bin\Release\System.Collections.Immutable.dll" target="lib\net472\System.Collections.Immutable.dll"/>
+    <file src="bin\Release\log4net.dll" target="lib\net472\log4net.dll"/>
+    <file src="..\..\Rapise128.png" target="images/Rapise128.png"/>
+  </files>  
+</package>
