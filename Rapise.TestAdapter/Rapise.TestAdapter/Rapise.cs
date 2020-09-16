@@ -65,10 +65,22 @@ namespace Rapise.TestAdapter
             return null;
         }
 
-        private void SaveResult(string filePath, string folderPath)
+        private void RegisterAttachment(TestCase tc, string fileName, string friendlyFileNameWithoutExtension, AttachmentSet attachmentSet)
         {
-            File.Copy(filePath, Path.Combine(folderPath, Path.GetFileName(filePath)));
+            string filePath = System.IO.Path.Combine(this.testFolderPath, fileName);
+            if (System.IO.File.Exists(filePath))
+            {
+                string attachmentFilePath = Path.Combine(this.testCaseResultDirectory, tc.FullyQualifiedName + "_" + friendlyFileNameWithoutExtension + "_" + this.timestamp + Path.GetExtension(fileName));
+                File.Copy(filePath, attachmentFilePath);
+
+                Uri fileUri = new Uri(attachmentFilePath, UriKind.Absolute);
+                attachmentSet.Attachments.Add(new UriDataAttachment(fileUri, friendlyFileNameWithoutExtension));
+            }
         }
+
+        private string testFolderPath;
+        private string testCaseResultDirectory;
+        private string timestamp;
 
         public TestResult RunTest(TestCase tc, IRunContext runContext)
         {
@@ -97,49 +109,25 @@ namespace Rapise.TestAdapter
             path = path.Replace("%SMARTESTUDIO%", GetRapisePath());
             path = path.Replace("%ENGINE%", System.IO.Path.Combine(GetRapiseEnginePath(), "\\.."));
             string executorLine = "\""+System.IO.Path.Combine(GetRapiseEnginePath(), "SeSExecutor.js")+ "\"" + " \"" + path + "\"" + parameters;
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH_mm_ss");
+            this.timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH_mm_ss");
             Process myProc = Process.Start("cscript.exe", executorLine);
             myProc.WaitForExit();
             log.Debug("Exit code: " + myProc.ExitCode);
 
-            string testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, tc.FullyQualifiedName + "_" + timestamp);
-            Directory.CreateDirectory(testCaseResultDirectory);
-
-            string testFolderPath = System.IO.Path.GetDirectoryName(path);
+            this.testFolderPath = System.IO.Path.GetDirectoryName(path);
+            this.testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, tc.FullyQualifiedName + "_" + this.timestamp);
+            Directory.CreateDirectory(this.testCaseResultDirectory);
 
             var attachmentSet = new AttachmentSet(new Uri(RapiseTestAdapter.ExecutorUri), "Attachments");
             
-            string outPath = System.IO.Path.Combine(testFolderPath, "summary.log");
-            if (System.IO.File.Exists(outPath))
-            {
-                Uri fileUri = new Uri(outPath, UriKind.Absolute);
-                attachmentSet.Attachments.Add(new UriDataAttachment(fileUri, "Output Log"));
-                SaveResult(outPath, testCaseResultDirectory);
-            }
-
-            string errPath = System.IO.Path.Combine(testFolderPath, "err.log");
-            if (System.IO.File.Exists(errPath))
-            {
-                Uri fileUri = new Uri(errPath, UriKind.Absolute);
-                attachmentSet.Attachments.Add(new UriDataAttachment(fileUri, "Error Log"));
-                SaveResult(errPath, testCaseResultDirectory);
-            }
-
-            string tapPath = System.IO.Path.Combine(testFolderPath, "last.tap");
-            if (System.IO.File.Exists(tapPath))
-            {
-                Uri fileUri = new Uri(tapPath, UriKind.Absolute);
-                attachmentSet.Attachments.Add(new UriDataAttachment(fileUri, "Report in TAP format"));
-                SaveResult(tapPath, testCaseResultDirectory);
-            }
+            RegisterAttachment(tc, "summary.log", "output", attachmentSet);
+            RegisterAttachment(tc, "err.log", "error", attachmentSet);
+            RegisterAttachment(tc, "last.tap", "tap_report", attachmentSet);
+            RegisterAttachment(tc, "last.trp", "trp_report", attachmentSet);
 
             string trpPath = System.IO.Path.Combine(testFolderPath, "last.trp");
             if (System.IO.File.Exists(trpPath))
             {
-                Uri fileUri = new Uri(trpPath, UriKind.Absolute);
-                attachmentSet.Attachments.Add(new UriDataAttachment(fileUri, "Report in Rapise format"));
-                SaveResult(trpPath, testCaseResultDirectory);
-
                 string trpString = "<report>" + File.ReadAllText(trpPath) + "</report>";
                 XmlDocument trpXml = new XmlDocument();
                 trpXml.LoadXml(trpString);
@@ -150,8 +138,8 @@ namespace Rapise.TestAdapter
                     if (!string.IsNullOrEmpty(htmlPath))
                     {
                         string screenFlowPath = Path.GetDirectoryName(htmlPath);
-                        string zipFileName = tc.FullyQualifiedName + "_" + Path.GetFileName(screenFlowPath) + "_screen_flow.zip";
-                        string zipFilePath = Path.Combine(testCaseResultDirectory, zipFileName);
+                        string zipFileName = tc.FullyQualifiedName + "_screen_flow_" + this.timestamp + ".zip";
+                        string zipFilePath = Path.Combine(this.testCaseResultDirectory, zipFileName);
                         ZipFile.CreateFromDirectory(screenFlowPath, zipFilePath);
                         Uri zipFileUri = new Uri(zipFilePath, UriKind.Absolute);
                         attachmentSet.Attachments.Add(new UriDataAttachment(zipFileUri, zipFileName));

@@ -51,7 +51,10 @@ namespace Rapise.TestAdapter
                 {
                     log.Debug("Run test case: " + tc.FullyQualifiedName + " / " + tc.Id);
                     frameworkHandle.RecordStart(tc);
+                    DateTime startTime = DateTime.Now;
                     TestResult tr = runner.RunTest(tc, runContext);
+                    DateTime endTime = DateTime.Now;
+                    tr.Duration = endTime - startTime;
                     frameworkHandle.RecordEnd(tc, tr.Outcome);
                     frameworkHandle.RecordResult(tr);
                 }
