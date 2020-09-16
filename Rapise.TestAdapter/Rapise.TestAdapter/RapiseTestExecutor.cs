@@ -42,6 +42,8 @@ namespace Rapise.TestAdapter
             supportedProperties.Add("FullyQualifiedName");
             ITestCaseFilterExpression fe = runContext.GetTestCaseFilter(supportedProperties, PropertyProvider);
 
+            log.Debug("Run settings:\n" + runContext.RunSettings.SettingsXml);
+
             log.Debug("RunTests from Test Cases");
             foreach (TestCase tc in tests)
             {
