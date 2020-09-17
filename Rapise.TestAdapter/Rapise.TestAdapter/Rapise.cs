@@ -70,7 +70,7 @@ namespace Rapise.TestAdapter
             string filePath = System.IO.Path.Combine(this.testFolderPath, fileName);
             if (System.IO.File.Exists(filePath))
             {
-                string attachmentFilePath = Path.Combine(this.testCaseResultDirectory, tc.FullyQualifiedName + "_" + friendlyFileNameWithoutExtension + "_" + this.timestamp + Path.GetExtension(fileName));
+                string attachmentFilePath = Path.Combine(this.testCaseResultDirectory, friendlyFileNameWithoutExtension + "_" + tc.FullyQualifiedName + "_" + this.timestamp + Path.GetExtension(fileName));
                 File.Copy(filePath, attachmentFilePath);
 
                 Uri fileUri = new Uri(attachmentFilePath, UriKind.Absolute);
@@ -138,7 +138,7 @@ namespace Rapise.TestAdapter
                     if (!string.IsNullOrEmpty(htmlPath))
                     {
                         string screenFlowPath = Path.GetDirectoryName(htmlPath);
-                        string zipFileName = tc.FullyQualifiedName + "_screen_flow_" + this.timestamp + ".zip";
+                        string zipFileName = "screen_flow_" + tc.FullyQualifiedName + "_" + this.timestamp + ".zip";
                         string zipFilePath = Path.Combine(this.testCaseResultDirectory, zipFileName);
                         ZipFile.CreateFromDirectory(screenFlowPath, zipFilePath);
                         Uri zipFileUri = new Uri(zipFilePath, UriKind.Absolute);
