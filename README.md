@@ -103,6 +103,8 @@ Parameters can be set via
 - `overrideTestrunParameters` YAML option or
 - **Override test run parameters** field in the form-based task editor.
 
+> Note: Parameter names must be prefixed with `g_`.
+
 Example:
 
 ```
