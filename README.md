@@ -95,9 +95,9 @@ Example:
 FullyQualifiedName~LIS
 ```
 
-##### Properties
+##### Parameters
 
-Properties can be set via
+Parameters can be set via
 
 - .runsettings file,
 - `overrideTestrunParameters` YAML option or
