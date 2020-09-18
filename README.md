@@ -87,7 +87,7 @@ Rapise.TestAdapter also supports filtering, parameters and .runsettings files.
    
 ##### Test Filter Cirteria  
 
-Rapise.TestAdapter supports filter citeria based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
+Rapise.TestAdapter supports [filter citeria](https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md) based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
 
 Example:
 
@@ -149,7 +149,7 @@ It is also possible to run Rapise tests on a VM that has VSTest.Console.exe inst
 Let's assume that the working folder is `C:\Tools`.
 
 1. Download and install [NuGet](https://www.nuget.org/downloads).
-2. Install Microsoft.TestPlatform with a command
+2. Install [Microsoft.TestPlatform](https://www.nuget.org/packages/Microsoft.TestPlatform) with a command
 
     ```
     nuget install Microsoft.TestPlatform
