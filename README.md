@@ -68,4 +68,102 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
     
     Specify patterns to search for `*.sstest` files in the **test files** section (`testAssemblyVer2` in YAML).
     
+4. To publish test results for download use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
+
+    Example:
     
+    ```yaml
+    steps:
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: TestResults'
+      inputs:
+        PathtoPublish: '$(Agent.TempDirectory)\TestResults'
+        ArtifactName: TestResults
+    ```
+
+#### Visual Studio Test Task 
+
+Rapise.TestAdapter also supports filtering, parameters and .runsettings files.
+   
+##### Test Filter Cirteria  
+
+Rapise.TestAdapter supports filter citeria based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
+
+Example:
+
+```
+FullyQualifiedName~LIS
+```
+
+##### Properties
+
+Properties can be set via
+
+- .runsettings file,
+- `overrideTestrunParameters` YAML option or
+- **Override test run parameters** field in the form-based task editor.
+
+Example:
+
+```
+-g_baseURL $(Dynamics365CrmBaseURL) -g_password $(Dynamics365CrmPassword) -g_browserLibrary $(RapiseBrowserProfile)
+```
+
+> Note: $(name) - references a pipeline variable
+
+##### .runsettings
+
+[.runsettings file](https://docs.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file) is used to pass parameters and to enable [video recorder](https://docs.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file?view=vs-2019#videorecorder-data-collector).
+
+Example:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Parameters used by tests at runtime -->
+  <TestRunParameters>
+    <Parameter name="g_browserLibrary" value="Chrome" />
+  </TestRunParameters>
+
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector uri="datacollector://microsoft/VideoRecorder/1.0" assemblyQualifiedName="Microsoft.VisualStudio.TestTools.DataCollection.VideoRecorder.VideoRecorderDataCollector, Microsoft.VisualStudio.TestTools.DataCollection.VideoRecorder, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" friendlyName="video" enabled="True">
+        <Configuration>
+          <MediaRecorder sendRecordedMediaForPassedTestCase="true"  xmlns="">           
+            <ScreenCaptureVideo bitRate="512" frameRate="2" quality="20" />
+          </MediaRecorder>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>  
+  
+</RunSettings>
+```
+
+### Run Tests with VSTest.Console.exe
+
+It is also possible to run Rapise tests on a VM that has VSTest.Console.exe installed.
+
+#### Setup Microsoft.TestPlatform on a VM
+
+Let's assume that the working folder is `C:\Tools`.
+
+1. Download and install [NuGet](https://www.nuget.org/downloads).
+2. Install Microsoft.TestPlatform with a command
+
+    ```
+    nuget install Microsoft.TestPlatform
+    ```
+Find `VSTest.Console.exe` in `C:\Tools\Microsoft.TestPlatform.16.7.1\tools\net451\Common7\IDE\Extensions\TestPlatform`. Add this folder to the PATH environment variable.
+
+3. Install Rapise.TestAdapter
+
+    ```
+    nuget install Rapise.TestAdapter
+    ```
+    
+4. You may now create a .cmd file and put it near Rapise tests. E.g.
+
+    ```
+    vstest.console.exe /TestAdapterPath:C:\Tools\Rapise.TestAdapter.1.0.11\lib\net472 /Settings:local.runsettings /TestCaseFilter:FullyQualifiedName~LIS *\*.sstest
+    ```
