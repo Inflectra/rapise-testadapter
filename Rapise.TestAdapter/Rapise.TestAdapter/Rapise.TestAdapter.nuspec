@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
     <title>$title$</title>
     <authors>Team Rapise</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/Inflectra/rapise-testadapter</projectUrl>
     <icon>images/Rapise128.png</icon>
     <description>Rapise TestAdapter for VSTest</description>
-    <releaseNotes>Test version.</releaseNotes>
+    <releaseNotes>This is the first ready to use version.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>rapise vstest testadapter</tags>
   </metadata>
