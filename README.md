@@ -8,7 +8,21 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
 
 ### Azure Pipelines
 
-1. Add [NuGet tool installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/nuget?view=azure-devops) task to install NuGet.exe.
+1. If you plan to run tests on Azure Hosted agents you need to configure the installtion step for Rapise. Add [PowerShell](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/powershell?view=azure-devops) task.
+
+```yaml
+steps:
+- task: PowerShell@2
+  displayName: 'Install Rapise'
+  inputs:
+    targetType: filePath
+    filePath: ./RapiseInstall.ps1
+    arguments: '-RapiseVersion "6.5.20.21"'
+```
+
+`RapiseInstall.ps1` is located in the root of this repository. Place it into your Git repository and reference in the PowerShell task. This script downlads and installs Rapise. It also installs Rapise extension into Chrome browser.
+
+2. Add [NuGet tool installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/nuget?view=azure-devops) task to install NuGet.exe.
     
     Example:
     
@@ -19,7 +33,7 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
       inputs:
         versionSpec: 4.4.1
     ```
-2. Add [NuGet](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget?view=azure-devops) task. Set **command** to `custom` and specify the command line:
+3. Add [NuGet](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget?view=azure-devops) task. Set **command** to `custom` and specify the command line:
 
     ```
     install Rapise.TestAdapter -Version $(RapiseTestAdapterVersion)
@@ -41,7 +55,7 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
     ```
     $(Build.Repository.LocalPath)\Rapise.TestAdapter.$(RapiseTestAdapterVersion)\lib\net472
     ```
-3. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
+4. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
 
     Example:
     
@@ -68,7 +82,7 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
     
     Specify patterns to search for `*.sstest` files in the **test files** section (`testAssemblyVer2` in YAML).
     
-4. To publish test results for download use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
+5. To publish test results for download use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
 
     Example:
     
