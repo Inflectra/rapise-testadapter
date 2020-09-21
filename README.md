@@ -158,7 +158,7 @@ Example:
 
 ### Run Tests with VSTest.Console.exe
 
-It is also possible to run Rapise tests on a VM that has VSTest.Console.exe installed.
+It is also possible to run Rapise tests on a VM that has [VSTest.Console.exe](https://docs.microsoft.com/en-us/visualstudio/test/vstest-console-options?view=vs-2019) installed.
 
 #### Setup Microsoft.TestPlatform on a VM
 
