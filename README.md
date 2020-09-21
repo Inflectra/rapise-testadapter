@@ -82,7 +82,7 @@ steps:
     
     Specify patterns to search for `*.sstest` files in the **test files** section (`testAssemblyVer2` in YAML).
     
-5. To publish test results for download use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
+5. To publish test results (for later review and downloading) use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
 
     Example:
     
@@ -101,7 +101,7 @@ Rapise.TestAdapter also supports filtering, parameters and .runsettings files.
    
 ##### Test Filter Cirteria  
 
-Rapise.TestAdapter supports [filter citeria](https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md) based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
+Rapise.TestAdapter supports [filter criteria](https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md) based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
 
 Example:
 
