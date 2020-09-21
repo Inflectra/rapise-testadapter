@@ -20,7 +20,7 @@ steps:
     arguments: '-RapiseVersion "6.5.20.21"'
 ```
 
-`RapiseInstall.ps1` is located in the root of this repository. Place it into your Git repository and reference in the PowerShell task. This script downlads and installs Rapise. It also installs Rapise extension into Chrome browser.
+`RapiseInstall.ps1` is located in the root of this repository. Place it into your Git repository and reference in the PowerShell task. This script downloads and installs Rapise. It also installs Rapise extension into Chrome browser.
 
 2. Add [NuGet tool installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/nuget?view=azure-devops) task to install NuGet.exe.
     
