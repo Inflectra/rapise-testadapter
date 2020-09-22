@@ -55,7 +55,19 @@ steps:
     ```
     $(Build.Repository.LocalPath)\Rapise.TestAdapter.$(RapiseTestAdapterVersion)\lib\net472
     ```
-4. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
+4. If you plan to run tests on a self-hosted Windows Agent that does not have Visual Studio installed you need to add [Visual Studio Test Platform Installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/vstest-platform-tool-installer?view=azure-devops) task.
+
+    Example:
+    
+    ```yaml
+    steps:
+    - task: VisualStudioTestPlatformInstaller@1
+      displayName: 'Visual Studio Test Platform Installer'
+      inputs:
+        versionSelector: latestStable
+    ```
+
+5. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
 
     Example:
     
@@ -81,6 +93,12 @@ steps:
     ```
     
     Specify patterns to search for `*.sstest` files in the **test files** section (`testAssemblyVer2` in YAML).
+    
+    If you added Visual Studio Test Platform Installer task on the previous step do not forget to set `vsTestVersion` in YAML (or Test platform version in Classic UI):
+    
+    ```
+    vsTestVersion: toolsInstaller
+    ```
     
 5. To publish test results (for later review and downloading) use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
 
