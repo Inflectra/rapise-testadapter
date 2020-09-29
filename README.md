@@ -8,7 +8,21 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
 
 ### Azure Pipelines
 
-1. Add [NuGet tool installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/nuget?view=azure-devops) task to install NuGet.exe.
+1. If you plan to run tests on Azure Hosted agents you need to configure the installtion step for Rapise. Add [PowerShell](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/powershell?view=azure-devops) task.
+
+```yaml
+steps:
+- task: PowerShell@2
+  displayName: 'Install Rapise'
+  inputs:
+    targetType: filePath
+    filePath: ./RapiseInstall.ps1
+    arguments: '-RapiseVersion "6.5.20.21"'
+```
+
+`RapiseInstall.ps1` is located in the root of this repository. Place it into your Git repository and reference in the PowerShell task. This script downloads and installs Rapise. It also installs Rapise extension into Chrome browser.
+
+2. Add [NuGet tool installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/nuget?view=azure-devops) task to install NuGet.exe.
     
     Example:
     
@@ -19,7 +33,7 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
       inputs:
         versionSpec: 4.4.1
     ```
-2. Add [NuGet](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget?view=azure-devops) task. Set **command** to `custom` and specify the command line:
+3. Add [NuGet](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget?view=azure-devops) task. Set **command** to `custom` and specify the command line:
 
     ```
     install Rapise.TestAdapter -Version $(RapiseTestAdapterVersion)
@@ -41,7 +55,19 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
     ```
     $(Build.Repository.LocalPath)\Rapise.TestAdapter.$(RapiseTestAdapterVersion)\lib\net472
     ```
-3. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
+4. If you plan to run tests on a self-hosted Windows Agent that does not have Visual Studio installed you need to add [Visual Studio Test Platform Installer](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/vstest-platform-tool-installer?view=azure-devops) task.
+
+    Example:
+    
+    ```yaml
+    steps:
+    - task: VisualStudioTestPlatformInstaller@1
+      displayName: 'Visual Studio Test Platform Installer'
+      inputs:
+        versionSelector: latestStable
+    ```
+
+5. To run tests you need [Visual Studio Test](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/vstest?view=azure-devops) task.
 
     Example:
     
@@ -68,7 +94,13 @@ The package is published on NuGet.org: [Rapise.TestAdapter](https://www.nuget.or
     
     Specify patterns to search for `*.sstest` files in the **test files** section (`testAssemblyVer2` in YAML).
     
-4. To publish test results for download use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
+    If you added Visual Studio Test Platform Installer task on the previous step do not forget to set `vsTestVersion` in YAML (or Test platform version in Classic UI):
+    
+    ```
+    vsTestVersion: toolsInstaller
+    ```
+    
+6. To publish test results (for later review and downloading) use [Publish Build Artifacts](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/publish-build-artifacts?view=azure-devops) task. Execution results are copied to `$(Agent.TempDirectory)\TestResults`.
 
     Example:
     
@@ -87,7 +119,7 @@ Rapise.TestAdapter also supports filtering, parameters and .runsettings files.
    
 ##### Test Filter Cirteria  
 
-Rapise.TestAdapter supports [filter citeria](https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md) based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
+Rapise.TestAdapter supports [filter criteria](https://github.com/Microsoft/vstest-docs/blob/master/docs/filter.md) based on FullyQualifiedName test property (equals to  *.sstest file name). To specify a filter set `testFiltercriteria` in YAML or `Test filter criteria` in the form-based task editor.
 
 Example:
 
@@ -144,7 +176,7 @@ Example:
 
 ### Run Tests with VSTest.Console.exe
 
-It is also possible to run Rapise tests on a VM that has VSTest.Console.exe installed.
+It is also possible to run Rapise tests on a VM that has [VSTest.Console.exe](https://docs.microsoft.com/en-us/visualstudio/test/vstest-console-options?view=vs-2019) installed.
 
 #### Setup Microsoft.TestPlatform on a VM
 
