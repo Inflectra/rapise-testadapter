@@ -103,6 +103,13 @@ namespace Rapise.TestAdapter
                 }
             }
 
+            XmlNodeList maxCpuCount = rs.SelectNodes("//RunConfiguration/MaxCpuCount");
+            if (maxCpuCount.Count > 0)
+            {
+                log.Debug("Parallel execution is turned ON");
+                parameters += " \"-eval:g_testSetParams.g_showExecutionMonitor=''\"";
+            }
+
             string path = tc.Source;
 
             Directory.SetCurrentDirectory(Path.GetDirectoryName(path));
