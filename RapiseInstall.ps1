@@ -156,6 +156,13 @@ Install-Binary -Url $RapiseInstallerUrl -Name $RapiseInstallerFile -ArgumentList
 # Close Rapise instance launched by setup
 Close-ProcessIfRunning "Rapise"
 
+# Disable execution monitor
+$RapiseConfigPath = Join-Path $env:ProgramData "Inflectra\Rapise\Basic.config"
+Set-Content -Path $RapiseConfigPath -Value '<?xml version="1.0" encoding="utf-8"?>
+<EngineSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnableExecutionMonitor>false</EnableExecutionMonitor>
+</EngineSettings>'
+
 Write-Host "Checking port 1200, after install"
 Get-NetTCPConnection -LocalPort 1200 -EV Err -EA SilentlyContinue
 Write-Host "After checking port 1200"
