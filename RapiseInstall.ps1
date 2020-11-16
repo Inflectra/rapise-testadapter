@@ -139,15 +139,6 @@ function Close-ProcessIfRunning
 # Start chrome, so it starts deploying extensions to the new profile
 Start-Process -FilePath "chrome.exe"
 
-# Firefox
-# [microsoft.win32.registry]::SetValue("HKEY_CURRENT_USER\Software\Policies\Mozilla\Firefox\Extensions\Install\", "1", "https://addons.mozilla.org/firefox/downloads/file/3608452/rapise_plugin_for_firefox-5.0.6-fx.xpi")
-# mkdir /y $CurDir\RapiseProfile
-# Start firefox, so it starts deploying extensions to the new profile
-#$CurDir =  $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath('.\')
-#Start-Process -FilePath "firefox.exe" -ArgumentList "-setDefaultBrowser -CreateProfile `"RapiseProfile $CurDir\RapiseProfile`""
-#Start-Process -FilePath "firefox.exe" -ArgumentList "-P `"RapiseProfile`" -url http://www.libraryinformationsystem.org/"
-#Start-Process -FilePath "chrome.exe" -ArgumentList "--user-data-dir=D:\a\1\s\WebTestFramework\ChromeProfile --enable-logging --v=1"
-
 # Download and install latest Rapise
 $RapiseInstallerFile = "Rapise-v${RapiseVersion}.exe"
 $RapiseInstallerUrl = "https://inflectra-rapise-releases.s3-eu-west-1.amazonaws.com/Rapise_${RapiseVersion}/${RapiseInstallerFile}"
