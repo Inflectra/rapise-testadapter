@@ -49,12 +49,15 @@ namespace Rapise.TestAdapter
             log.Debug("RunTests from Test Cases");
             foreach (TestCase tc in tests)
             {
+                string cats = string.Join(",", tc.GetPropertyValue(RapiseTestCategoryProperty) as string[]);
+
                 if (fe == null || fe.MatchTestCase(tc, p => PropertyValueProvider(tc, p)))
                 {
-                    log.Debug("Run test case: " + tc.FullyQualifiedName + " / " + tc.Id);
+                    log.Debug("Run test case: " + tc.FullyQualifiedName + " / " + tc.Id + " / "+cats);
                     frameworkHandle.RecordStart(tc);
                     DateTime startTime = DateTime.Now;
                     TestResult tr = runner.RunTest(tc, runContext);
+                    tr.SetPropertyValue(RapiseTestCategoryProperty, tc.GetPropertyValue(RapiseTestCategoryProperty) as string[]);
                     DateTime endTime = DateTime.Now;
                     tr.Duration = endTime - startTime;
                     frameworkHandle.RecordEnd(tc, tr.Outcome);
@@ -62,7 +65,7 @@ namespace Rapise.TestAdapter
                 }
                 else
                 {
-                    log.Debug("Test case filtered out: " + tc.FullyQualifiedName + " / " + tc.Id);
+                    log.Debug("Test case filtered out: " + tc.FullyQualifiedName + " / " + tc.Id + " / " + cats);
                 }
             }
         }
