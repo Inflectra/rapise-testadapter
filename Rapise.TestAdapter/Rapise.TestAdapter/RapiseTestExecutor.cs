@@ -44,7 +44,14 @@ namespace Rapise.TestAdapter
             supportedProperties.Add("TestCategory");
             ITestCaseFilterExpression fe = runContext.GetTestCaseFilter(supportedProperties, PropertyProvider);
 
-            log.Debug("Run settings:\n" + runContext.RunSettings.SettingsXml);
+            if (runContext.RunSettings != null)
+            {
+                log.Debug("Run settings:\n" + runContext.RunSettings.SettingsXml);
+            }
+            else 
+            {
+                log.Debug("No .runsettings provided");
+            }
 
             log.Debug("RunTests from Test Cases");
             foreach (TestCase tc in tests)
@@ -67,7 +74,7 @@ namespace Rapise.TestAdapter
             }
         }
 
-        internal static readonly TestProperty RapiseTestCategoryProperty = TestProperty.Register(
+        public static readonly TestProperty RapiseTestCategoryProperty = TestProperty.Register(
             id: "Rapise.TestCategory",
             label: "TestCategory",
             valueType: typeof(string[]),

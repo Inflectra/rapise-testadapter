@@ -19,6 +19,8 @@ namespace Rapise.TestAdapter
             List<TestCase> tests = new List<TestCase>();
             foreach (string source in sources)
             {
+                string currentDirectory = System.IO.Directory.GetCurrentDirectory();
+                log.Debug("Current directory: " + currentDirectory);
                 log.Debug("Test Source: " + source);
                 string testCaseName = Path.GetFileNameWithoutExtension(source);
                 TestCase tc = new TestCase(testCaseName, new Uri(RapiseTestAdapter.ExecutorUri), source);
