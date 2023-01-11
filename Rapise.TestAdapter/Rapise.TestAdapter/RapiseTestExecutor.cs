@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rapise.TestAdapter
 {
@@ -40,6 +41,7 @@ namespace Rapise.TestAdapter
             // https://github.com/nunit/nunit3-vs-adapter/blob/master/src/NUnitTestAdapter/VsTestFilter.cs
             List<string> supportedProperties = new List<string>();
             supportedProperties.Add("FullyQualifiedName");
+            supportedProperties.Add("TestCategory");
             ITestCaseFilterExpression fe = runContext.GetTestCaseFilter(supportedProperties, PropertyProvider);
 
             log.Debug("Run settings:\n" + runContext.RunSettings.SettingsXml);
@@ -64,13 +66,37 @@ namespace Rapise.TestAdapter
                 }
             }
         }
+
+        internal static readonly TestProperty RapiseTestCategoryProperty = TestProperty.Register(
+            id: "Rapise.TestCategory",
+            label: "TestCategory",
+            valueType: typeof(string[]),
+            TestPropertyAttributes.Hidden
+        #pragma warning disable CS0618 // This is the only way to fix https://github.com/nunit/nunit3-vs-adapter/issues/310, and MSTest also depends on this.
+                        | TestPropertyAttributes.Trait,
+        #pragma warning restore CS0618
+                    owner: typeof(TestCase));
+
         public static TestProperty PropertyProvider(string propertyName)
         {
+            if(propertyName=="TestCategory")
+            {
+                return RapiseTestCategoryProperty;
+            } 
             return TestCaseProperties.FullyQualifiedName;
         }
 
         public static object PropertyValueProvider(TestCase currentTest, string propertyName)
         {
+            if(propertyName=="TestCategory")
+            {
+                if( currentTest.Properties.Contains(RapiseTestCategoryProperty) )
+                {
+                    object res = currentTest.GetPropertyValue(RapiseTestCategoryProperty);
+                    return res;
+                }
+                return null;
+            }
             return currentTest.FullyQualifiedName;
         }
     }

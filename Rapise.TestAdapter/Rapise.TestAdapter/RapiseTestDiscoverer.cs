@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 
 namespace Rapise.TestAdapter
 {
@@ -21,6 +22,31 @@ namespace Rapise.TestAdapter
                 log.Debug("Test Source: " + source);
                 string testCaseName = Path.GetFileNameWithoutExtension(source);
                 TestCase tc = new TestCase(testCaseName, new Uri(RapiseTestAdapter.ExecutorUri), source);
+                try
+                {
+                    XmlDocument txml = new XmlDocument();
+                    txml.Load(source);
+                    XmlNode sfn = txml.SelectSingleNode("/Test/Tags");
+                    string tagss = "";
+                    if (sfn != null)
+                    {
+                        tagss = "" + sfn.InnerText;
+                        tagss = ("" + tagss).Replace(';', ',');
+                    }
+                    List<string> tagValues = new List<string>();
+                    foreach (string t in tagss.Split(','))
+                    {
+                        tagValues.Add(t.Trim());
+                    }
+                    tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestCategoryProperty.Label, tagss));
+                    tc.SetPropertyValue(RapiseTestExecutor.RapiseTestCategoryProperty, tagValues.ToArray());
+
+                }
+                catch (Exception ex)
+                {
+                    log.Debug("Error reading tags for " + source + ": ", ex);
+                }
+
                 if (discoverySink != null)
                 {
                     discoverySink.SendTestCase(tc);
