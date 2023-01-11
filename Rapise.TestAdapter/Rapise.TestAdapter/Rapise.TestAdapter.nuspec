@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>$id$</id>
-    <version>1.0.15</version>
+    <version>1.0.16</version>
     <title>$title$</title>
     <authors>Team Rapise</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -23,5 +23,6 @@
     <file src="bin\Release\System.Collections.Immutable.dll" target="lib\net472\System.Collections.Immutable.dll"/>
     <file src="bin\Release\log4net.dll" target="lib\net472\log4net.dll"/>
     <file src="..\..\Rapise128.png" target="images/Rapise128.png"/>
+    <file src="..\..\README.md" target="README.md"/>
   </files>  
 </package>
