@@ -89,6 +89,16 @@ namespace Rapise.TestAdapter
         #pragma warning restore CS0618
                     owner: typeof(TestCase));
 
+        public static readonly TestProperty RapiseTestOwnerProperty = TestProperty.Register(
+            id: "Rapise.TestOwner",
+            label: "Owner",
+            valueType: typeof(string),
+            TestPropertyAttributes.Hidden
+        #pragma warning disable CS0618 // This is the only way to fix https://github.com/nunit/nunit3-vs-adapter/issues/310, and MSTest also depends on this.
+                        | TestPropertyAttributes.Trait,
+        #pragma warning restore CS0618
+                    owner: typeof(TestCase));
+
         public static TestProperty PropertyProvider(string propertyName)
         {
             if(propertyName=="TestCategory")

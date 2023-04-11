@@ -154,6 +154,9 @@ namespace Rapise.TestAdapter
                 }
             }
 
+            string ownerValue = ""+tc.GetPropertyValue(RapiseTestExecutor.RapiseTestOwnerProperty);
+            tr.Traits.Add(new Trait("Owner", ownerValue));
+
             tr.Attachments.Add(attachmentSet);
             tr.Outcome = myProc.ExitCode == 0 ? TestOutcome.Passed : TestOutcome.Failed;
             return tr;

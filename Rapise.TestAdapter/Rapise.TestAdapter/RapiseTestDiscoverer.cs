@@ -43,6 +43,15 @@ namespace Rapise.TestAdapter
                     tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestCategoryProperty.Label, tagss));
                     tc.SetPropertyValue(RapiseTestExecutor.RapiseTestCategoryProperty, tagValues.ToArray());
 
+                    sfn = txml.SelectSingleNode("//TestParam[@name='Owner']");
+                    string ownerValue = "";
+                    if (sfn != null )
+                    {
+                        ownerValue = sfn.Attributes["defaultValue"].Value;
+                    }
+                    tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestOwnerProperty.Label, ownerValue));
+                    tc.SetPropertyValue(RapiseTestExecutor.RapiseTestOwnerProperty, ownerValue);
+
                 }
                 catch (Exception ex)
                 {
