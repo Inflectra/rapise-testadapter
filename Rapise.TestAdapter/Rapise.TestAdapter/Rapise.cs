@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using System.Xml;
 using System.IO.Compression;
+using System.Linq;
 
 namespace Rapise.TestAdapter
 {
@@ -82,6 +83,14 @@ namespace Rapise.TestAdapter
         private string testCaseResultDirectory;
         private string timestamp;
 
+        private static Random random = new Random();
+        private static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
         public TestResult RunTest(TestCase tc, IRunContext runContext)
         {
             TestResult tr = new TestResult(tc);
@@ -104,7 +113,8 @@ namespace Rapise.TestAdapter
             }
 
             XmlNodeList maxCpuCount = rs.SelectNodes("//RunConfiguration/MaxCpuCount");
-            if (maxCpuCount.Count > 0)
+            bool parallel = maxCpuCount.Count > 0;
+            if (parallel)
             {
                 log.Debug("Parallel execution is turned ON");
                 parameters += " \"-eval:g_testSetParams.g_showExecutionMonitor=''\"";
@@ -117,7 +127,21 @@ namespace Rapise.TestAdapter
             path = path.Replace("%ENGINE%", System.IO.Path.Combine(GetRapiseEnginePath(), "\\.."));
             string executorLine = "\""+System.IO.Path.Combine(GetRapiseEnginePath(), "SeSExecutor.js")+ "\"" + " \"" + path + "\"" + parameters;
             this.timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH_mm_ss");
-            Process myProc = Process.Start("cscript.exe", executorLine);
+
+
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.Arguments = executorLine;
+            startInfo.FileName = "cscript.exe";
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = Path.GetDirectoryName(path);
+            string suffix = "";
+            if (parallel)
+            {
+                suffix = "_" + RandomString(5).ToUpper();
+                startInfo.EnvironmentVariables["THREAD"] = suffix;
+            }
+
+            Process myProc = Process.Start(startInfo);
             myProc.WaitForExit();
             log.Debug("Exit code: " + myProc.ExitCode);
 
@@ -127,12 +151,12 @@ namespace Rapise.TestAdapter
 
             var attachmentSet = new AttachmentSet(new Uri(RapiseTestAdapter.ExecutorUri), "Attachments");
             
-            RegisterAttachment(tc, "summary.log", "output", attachmentSet);
-            RegisterAttachment(tc, "err.log", "error", attachmentSet);
-            RegisterAttachment(tc, "last.tap", "tap_report", attachmentSet);
-            RegisterAttachment(tc, "last.trp", "trp_report", attachmentSet);
+            RegisterAttachment(tc, "summary" + suffix + ".log", "output", attachmentSet);
+            RegisterAttachment(tc, "err" + suffix + ".log", "error", attachmentSet);
+            RegisterAttachment(tc, "last" + suffix + ".tap", "tap_report", attachmentSet);
+            RegisterAttachment(tc, "last" + suffix + ".trp", "trp_report", attachmentSet);
 
-            string trpPath = System.IO.Path.Combine(testFolderPath, "last.trp");
+            string trpPath = System.IO.Path.Combine(testFolderPath, "last" + suffix + ".trp");
             if (System.IO.File.Exists(trpPath))
             {
                 string trpString = "<report>" + File.ReadAllText(trpPath) + "</report>";
