@@ -176,11 +176,33 @@ namespace Rapise.TestAdapter
                         attachmentSet.Attachments.Add(new UriDataAttachment(zipFileUri, zipFileName));
                     }
                 }
+                // <log type="Assert" name="Fail1" status="Fail"  at="2023-07-27 15:14:26.837"><data type="link" url="C:\Outils\Rapise\FWNoSpira\TestCases\t2\Main.rvl.xlsx(RVL,6,1)" text="C:\Outils\Rapise\FWNoSpira\TestCases\t2\Main.rvl.xlsx(RVL,6,1)"/></ log >
+
+                XmlNode firstFailure = trpXml.SelectSingleNode("//log[@type='Assert' and @status='Fail']");
+                if(firstFailure!=null)
+                {
+                    tr.ErrorMessage = firstFailure.Attributes["name"].Value;
+                    XmlAttribute comment = firstFailure.Attributes["comment"];
+                    if (comment != null)
+                    {
+                        tr.ErrorMessage += "\t" + comment.Value;
+                    }
+                    string stack = "";
+                    foreach(XmlNode dataNode in firstFailure.SelectNodes(".//data"))
+                    {
+                        XmlAttribute txt = dataNode.Attributes["text"];
+                        if(txt!=null)
+                        {
+                            stack += txt.Value + "\n";
+                        }
+                    }
+                    tr.ErrorStackTrace = stack;
+                }
+
             }
 
             string ownerValue = ""+tc.GetPropertyValue(RapiseTestExecutor.RapiseTestOwnerProperty);
             tr.Traits.Add(new Trait("Owner", ownerValue));
-
             tr.Attachments.Add(attachmentSet);
             tr.Outcome = myProc.ExitCode == 0 ? TestOutcome.Passed : TestOutcome.Failed;
             return tr;
