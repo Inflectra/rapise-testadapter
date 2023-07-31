@@ -128,6 +128,7 @@ namespace Rapise.TestAdapter
             string executorLine = "\""+System.IO.Path.Combine(GetRapiseEnginePath(), "SeSExecutor.js")+ "\"" + " \"" + path + "\"" + parameters;
             this.timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH_mm_ss");
 
+            tc.Source = tc.Source.Replace('\\', '.').Replace('/', '.');
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.Arguments = executorLine;
