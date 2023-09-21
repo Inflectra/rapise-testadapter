@@ -20,11 +20,14 @@ namespace Rapise.TestAdapter
         private static log4net.ILog log = RapiseTestAdapter.InitLogging();
 
         private static string rapiseEnginePath;
-        private static string GetRapiseEnginePath()
+
+        public static string GetRapiseEnginePath()
         {
-            if (!string.IsNullOrEmpty(rapiseEnginePath))
+            string studioEnginePath = System.Environment.ExpandEnvironmentVariables(@"%ProgramFiles(x86)%\Inflectra\Rapise\Engine");
+
+            if (Directory.Exists(studioEnginePath))
             {
-                return rapiseEnginePath;
+                return studioEnginePath;
             }
 
             Type helperType = Type.GetTypeFromProgID("SeSHelper");
@@ -36,17 +39,17 @@ namespace Rapise.TestAdapter
                     object res = helperObj.GetType().InvokeMember("GetEnginePath", BindingFlags.InvokeMethod, null, helperObj, new object[0]);
                     if (null != res)
                     {
-                        rapiseEnginePath = "" + res;
-                        return rapiseEnginePath;
+                        return "" + res;
                     }
                 }
             }
             else
             {
-                log.Debug("Rapise is not installed, unable to create instance of SeSHelper");
+                log.Debug("Rapise is not installed");
             }
             return null;
         }
+
 
         private static string rapisePath;
         private static string GetRapisePath()
@@ -89,17 +92,6 @@ namespace Rapise.TestAdapter
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        public static string AssemblyDirectory
-        {
-            get
-            {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
         }
 
         public TestResult RunTest(TestCase tc, IRunContext runContext)
@@ -215,20 +207,6 @@ namespace Rapise.TestAdapter
             tr.Traits.Add(new Trait("Owner", ownerValue));
             tr.Attachments.Add(attachmentSet);
             tr.Outcome = myProc.ExitCode == 0 ? TestOutcome.Passed : TestOutcome.Failed;
-
-            tc.CodeFilePath = tc.Source;
-
-            var displayName = tc.Source;
-
-            if (displayName.StartsWith(AssemblyDirectory))
-            {
-                displayName = displayName.Substring(AssemblyDirectory.Length);
-            }
-            if (displayName.EndsWith(".sstest"))
-            {
-                displayName = Path.GetDirectoryName(displayName);
-            }
-            tc.FullyQualifiedName = displayName;
 
             return tr;
         }
