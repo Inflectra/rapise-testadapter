@@ -91,6 +91,17 @@ namespace Rapise.TestAdapter
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                UriBuilder uri = new UriBuilder(codeBase);
+                string path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+        }
+
         public TestResult RunTest(TestCase tc, IRunContext runContext)
         {
             TestResult tr = new TestResult(tc);
@@ -127,8 +138,6 @@ namespace Rapise.TestAdapter
             path = path.Replace("%ENGINE%", System.IO.Path.Combine(GetRapiseEnginePath(), "\\.."));
             string executorLine = "\""+System.IO.Path.Combine(GetRapiseEnginePath(), "SeSExecutor.js")+ "\"" + " \"" + path + "\"" + parameters;
             this.timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH_mm_ss");
-
-            tc.Source = tc.Source.Replace('\\', '.').Replace('/', '.');
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.Arguments = executorLine;
@@ -206,6 +215,21 @@ namespace Rapise.TestAdapter
             tr.Traits.Add(new Trait("Owner", ownerValue));
             tr.Attachments.Add(attachmentSet);
             tr.Outcome = myProc.ExitCode == 0 ? TestOutcome.Passed : TestOutcome.Failed;
+
+            tc.CodeFilePath = tc.Source;
+
+            var displayName = tc.Source;
+
+            if (displayName.StartsWith(AssemblyDirectory))
+            {
+                displayName = displayName.Substring(AssemblyDirectory.Length);
+            }
+            if (displayName.EndsWith(".sstest"))
+            {
+                displayName = Path.GetDirectoryName(displayName);
+            }
+            tc.FullyQualifiedName = displayName;
+
             return tr;
         }
     }
