@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -66,6 +68,38 @@ namespace Rapise.TestAdapter.Test
             rte.RunTests(sources, runContext.Object, frameworkhandle.Object);
 
             this.rapiseRunner.Verify(m => m.RunTest(It.IsAny<TestCase>(), It.IsAny<IRunContext>()), Times.Exactly(2));
+        }
+
+        private static string RandomString(int length)
+        {
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        [TestMethod]
+        public void TestRandomGenerator()
+        { 
+            List<Task> ts = new List<Task>();
+            Dictionary<string, int> d = new Dictionary<string, int>();
+            for (int i = 0; i < 10000; i++)
+            {
+                Task t = Task.Run(() => {
+                    string r = RandomString(5);
+                    if (d.ContainsKey(r))
+                    {
+                        Assert.IsTrue(false, "Dup: " + i + "/" + r + "/" + d.Count);
+                    }
+                    lock (d)
+                    {
+                        d[r] = i;
+                    }
+                });
+                ts.Add(t);
+            }
+            Task.WaitAll(ts.ToArray());
+        
         }
     }
 }
