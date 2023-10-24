@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,7 +33,7 @@ namespace Rapise.TestAdapter.Test
             this.runContext.Setup(m => m.GetTestCaseFilter(It.IsAny<IEnumerable<string>>(), (Func<string, TestProperty>)It.IsAny<object>())).Returns(filterExpression.Object);
             this.rapiseRunner.Setup(m => m.RunTest(It.IsAny<TestCase>(), It.IsAny<IRunContext>())).Returns((TestCase tc, IRunContext ctx) => new Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult(tc));
             RapiseTestExecutor rte = new RapiseTestExecutor(this.rapiseRunner.Object);
-            string[] sources = new string[] { "Test1.sstest", "Test2.sstest" };
+            string[] sources = new string[] { "Test1\\Test1.sstest", "Test2\\Test2.sstest" };
             rte.RunTests(sources, runContext.Object, frameworkhandle.Object);
 
             this.filterExpression.Verify(m => m.MatchTestCase(It.IsAny<TestCase>(), (Func<string, object>)It.IsAny<object>()), Times.Exactly(2));
@@ -62,10 +64,42 @@ namespace Rapise.TestAdapter.Test
             this.runContext.Setup(m => m.GetTestCaseFilter(It.IsAny<IEnumerable<string>>(), (Func<string, TestProperty>)It.IsAny<object>())).Returns(() => null);
             this.rapiseRunner.Setup(m => m.RunTest(It.IsAny<TestCase>(), It.IsAny<IRunContext>())).Returns((TestCase tc, IRunContext ctx) => new Microsoft.VisualStudio.TestPlatform.ObjectModel.TestResult(tc));
             RapiseTestExecutor rte = new RapiseTestExecutor(this.rapiseRunner.Object);
-            string[] sources = new string[] { "Test1.sstest", "Test2.sstest" };
+            string[] sources = new string[] { "Test1\\Test1.sstest", "Test2\\Test2.sstest" };
             rte.RunTests(sources, runContext.Object, frameworkhandle.Object);
 
             this.rapiseRunner.Verify(m => m.RunTest(It.IsAny<TestCase>(), It.IsAny<IRunContext>()), Times.Exactly(2));
+        }
+
+        private static string RandomString(int length)
+        {
+            Random random = new Random(Guid.NewGuid().GetHashCode());
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        [TestMethod]
+        public void TestRandomGenerator()
+        { 
+            List<Task> ts = new List<Task>();
+            Dictionary<string, int> d = new Dictionary<string, int>();
+            for (int i = 0; i < 100; i++)
+            {
+                Task t = Task.Run(() => {
+                    string r = RandomString(5);
+                    if (d.ContainsKey(r))
+                    {
+                        Assert.IsTrue(false, "Dup: " + i + "/" + r + "/" + d.Count);
+                    }
+                    lock (d)
+                    {
+                        d[r] = i;
+                    }
+                });
+                ts.Add(t);
+            }
+            Task.WaitAll(ts.ToArray());
+        
         }
     }
 }
