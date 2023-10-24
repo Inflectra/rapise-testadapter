@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Rapise.TestAdapter
@@ -21,42 +22,81 @@ namespace Rapise.TestAdapter
             {
                 string currentDirectory = Directory.GetCurrentDirectory();
                 string testCaseName = Path.GetFileName(Path.GetDirectoryName(source));
+                string aliasName = testCaseName;
                 log.Debug("Current directory: " + currentDirectory);
                 log.Debug("Test Source: " + source);
                 log.Debug("Test Case Name: " + testCaseName);
-                TestCase tc = new TestCase(testCaseName, new Uri(RapiseTestAdapter.ExecutorUri), source);
+                
+                if(source.EndsWith(".sstest"))
+                {
+                    testCaseName = Path.GetDirectoryName(source);
+                }
+                currentDirectory = currentDirectory.Replace("\\", "/");
+                testCaseName = testCaseName.Replace("\\", "/");
+                if (testCaseName.StartsWith(currentDirectory+"/"))
+                {
+                    testCaseName = testCaseName.Substring(currentDirectory.Length+1);
+                }
+                testCaseName = testCaseName.Trim();
+                testCaseName = testCaseName.Replace("/", ".");
+                string ownerValue = "";
+                string tagss = "";
+                List<string> tagValues = new List<string>();
+
                 try
                 {
                     XmlDocument txml = new XmlDocument();
                     txml.Load(source);
                     XmlNode sfn = txml.SelectSingleNode("/Test/Tags");
-                    string tagss = "";
+                    
                     if (sfn != null)
                     {
                         tagss = "" + sfn.InnerText;
                         tagss = ("" + tagss).Replace(';', ',');
                     }
-                    List<string> tagValues = new List<string>();
+
+                    sfn = txml.SelectSingleNode("/Test/AliasName");
+                    if (sfn != null)
+                    {
+                        aliasName = sfn.InnerText; ;
+                        testCaseName += "." + aliasName;
+                    }
+
                     foreach (string t in tagss.Split(','))
                     {
                         tagValues.Add(t.Trim());
                     }
-                    tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestCategoryProperty.Label, tagss));
-                    tc.SetPropertyValue(RapiseTestExecutor.RapiseTestCategoryProperty, tagValues.ToArray());
 
                     sfn = txml.SelectSingleNode("//TestParam[@name='Owner']");
-                    string ownerValue = "";
+                    
                     if (sfn != null )
                     {
                         ownerValue = sfn.Attributes["defaultValue"].Value;
                     }
+
+                }
+                catch (Exception ex)
+                {
+                    log.Debug("Error reading tags for " + source + ": ", ex);
+                }
+
+                TestCase tc = new TestCase(aliasName, new Uri(RapiseTestAdapter.ExecutorUri), source)
+                {
+                    DisplayName = testCaseName,
+                    CodeFilePath = source,
+                };
+
+                try
+                {
+                    tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestCategoryProperty.Label, tagss));
+                    tc.SetPropertyValue(RapiseTestExecutor.RapiseTestCategoryProperty, tagValues.ToArray());
                     tc.Traits.Add(new Trait(RapiseTestExecutor.RapiseTestOwnerProperty.Label, ownerValue));
                     tc.SetPropertyValue(RapiseTestExecutor.RapiseTestOwnerProperty, ownerValue);
 
                 }
                 catch (Exception ex)
                 {
-                    log.Debug("Error reading tags for " + source + ": ", ex);
+                    log.Debug("Error assigning attributes "+source+": ", ex);
                 }
 
                 if (discoverySink != null)

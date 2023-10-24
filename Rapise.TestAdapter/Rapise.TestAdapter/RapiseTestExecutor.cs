@@ -62,6 +62,7 @@ namespace Rapise.TestAdapter
                 if (fe == null || fe.MatchTestCase(tc, p => PropertyValueProvider(tc, p)))
                 {
                     log.Debug("Run test case: " + tc.FullyQualifiedName + " / " + tc.Id + " / "+cats);
+                    Console.WriteLine("Starting: " + tc.DisplayName + " from " + tc.Source);
                     frameworkHandle.RecordStart(tc);
                     DateTime startTime = DateTime.Now;
                     TestResult tr = runner.RunTest(tc, runContext);

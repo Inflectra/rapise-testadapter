@@ -144,7 +144,14 @@ namespace Rapise.TestAdapter
             }
 
             Process myProc = Process.Start(startInfo);
+            FileSystemWatcher fsw = new FileSystemWatcher(startInfo.WorkingDirectory, "last" + suffix + ".tap");
+            fsw.NotifyFilter = NotifyFilters.LastWrite;
+            fsw.IncludeSubdirectories = false;
+            fsw.Changed += OnTapFileChanged;
+            lastOffset = 0;
+            fsw.EnableRaisingEvents = true;
             myProc.WaitForExit();
+            fsw.EnableRaisingEvents = false;
             log.Debug("Exit code: " + myProc.ExitCode);
 
             this.testFolderPath = System.IO.Path.GetDirectoryName(path);
@@ -209,6 +216,23 @@ namespace Rapise.TestAdapter
             tr.Outcome = myProc.ExitCode == 0 ? TestOutcome.Passed : TestOutcome.Failed;
 
             return tr;
+        }
+        private int lastOffset = 0;
+        private void OnTapFileChanged(object sender, FileSystemEventArgs e)
+        {
+            try
+            {
+                string data = File.ReadAllText(e.FullPath);
+                if (data != null)
+                {
+                    string newData = data.Substring(lastOffset) + "\n";
+                    lastOffset=data.Length;
+                    Console.Write(newData);
+                }
+            }catch(Exception ex)
+            {
+                log.Debug("Error watching tap file: " + e.FullPath, ex);
+            }
         }
     }
 }
