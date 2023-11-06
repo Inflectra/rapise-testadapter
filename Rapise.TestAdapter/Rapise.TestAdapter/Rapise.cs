@@ -74,7 +74,7 @@ namespace Rapise.TestAdapter
             string filePath = System.IO.Path.Combine(this.testFolderPath, fileName);
             if (System.IO.File.Exists(filePath))
             {
-                string attachmentFilePath = Path.Combine(this.testCaseResultDirectory, friendlyFileNameWithoutExtension + "_" + tc.FullyQualifiedName + "_" + this.timestamp + Path.GetExtension(fileName));
+                string attachmentFilePath = Path.Combine(this.testCaseResultDirectory, friendlyFileNameWithoutExtension + "_" + Path.GetFileName(Path.GetDirectoryName(tc.Source)) + "_" + this.timestamp + Path.GetExtension(fileName));
                 File.Copy(filePath, attachmentFilePath);
 
                 Uri fileUri = new Uri(attachmentFilePath, UriKind.Absolute);
@@ -155,7 +155,8 @@ namespace Rapise.TestAdapter
             log.Debug("Exit code: " + myProc.ExitCode);
 
             this.testFolderPath = System.IO.Path.GetDirectoryName(path);
-            this.testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, tc.FullyQualifiedName + "_" + this.timestamp);
+            this.testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, Path.GetFileName(this.testFolderPath) + "_" + this.timestamp);
+            log.Debug("testFolderPath: " + testFolderPath + " testCaseResultDirectory:" + testCaseResultDirectory);
             Directory.CreateDirectory(this.testCaseResultDirectory);
 
             var attachmentSet = new AttachmentSet(new Uri(RapiseTestAdapter.ExecutorUri), "Attachments");

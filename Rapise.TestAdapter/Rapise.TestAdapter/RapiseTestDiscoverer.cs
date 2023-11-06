@@ -30,6 +30,7 @@ namespace Rapise.TestAdapter
                 if(source.EndsWith(".sstest"))
                 {
                     testCaseName = Path.GetDirectoryName(source);
+                    log.Debug("Path TC Name: " + testCaseName);
                 }
                 currentDirectory = currentDirectory.Replace("\\", "/");
                 testCaseName = testCaseName.Replace("\\", "/");
@@ -39,6 +40,8 @@ namespace Rapise.TestAdapter
                 }
                 testCaseName = testCaseName.Trim();
                 testCaseName = testCaseName.Replace("/", ".");
+                log.Debug("TC Name after convertion: " + testCaseName);
+
                 string ownerValue = "";
                 string tagss = "";
                 List<string> tagValues = new List<string>();
@@ -55,16 +58,16 @@ namespace Rapise.TestAdapter
                         tagss = ("" + tagss).Replace(';', ',');
                     }
 
-                    sfn = txml.SelectSingleNode("/Test/AliasName");
-                    if (sfn != null)
-                    {
-                        aliasName = sfn.InnerText; ;
-                        testCaseName += "." + aliasName;
-                    }
-
                     foreach (string t in tagss.Split(','))
                     {
                         tagValues.Add(t.Trim());
+                    }
+
+                    sfn = txml.SelectSingleNode("/Test/AliasName");
+                    if (sfn != null)
+                    {
+                        aliasName = sfn.InnerText;
+                        testCaseName += "." + aliasName;
                     }
 
                     sfn = txml.SelectSingleNode("//TestParam[@name='Owner']");
@@ -80,11 +83,15 @@ namespace Rapise.TestAdapter
                     log.Debug("Error reading tags for " + source + ": ", ex);
                 }
 
-                TestCase tc = new TestCase(aliasName, new Uri(RapiseTestAdapter.ExecutorUri), source)
+                log.Debug("Creating TC: Name: " + aliasName+ "\nDisplayName: " + testCaseName);
+
+                TestCase tc = new TestCase(testCaseName, new Uri(RapiseTestAdapter.ExecutorUri), source)
                 {
-                    DisplayName = testCaseName,
+                    DisplayName = aliasName,
                     CodeFilePath = source,
                 };
+
+                log.Debug("Created Test Case: " + tc);
 
                 try
                 {
