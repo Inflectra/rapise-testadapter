@@ -76,6 +76,9 @@ namespace Rapise.TestAdapter
                 else
                 {
                     log.Debug("Test case filtered out: " + tc.FullyQualifiedName + " / " + tc.Id + " / " + catss);
+                    TestResult tr = new TestResult(tc);
+                    tr.Outcome = TestOutcome.Skipped;
+                    frameworkHandle.RecordResult(tr);
                 }
             }
         }
