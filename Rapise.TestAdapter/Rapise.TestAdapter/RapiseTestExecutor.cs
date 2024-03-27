@@ -59,7 +59,14 @@ namespace Rapise.TestAdapter
                 string[] cats = tc.GetPropertyValue(RapiseTestCategoryProperty) as string[];
                 string catss = cats != null ? string.Join(",", cats) : "";
 
-                if (fe == null || fe.MatchTestCase(tc, p => PropertyValueProvider(tc, p)))
+                if( (","+catss+",").Contains(",disabled," ) )
+                {
+                    log.Debug("Test case disabled: " + tc.FullyQualifiedName + " / " + tc.Id + " / " + catss);
+                    TestResult tr = new TestResult(tc);
+                    tr.Outcome = TestOutcome.None;
+                    frameworkHandle.RecordResult(tr);
+                }
+                else if (fe == null || fe.MatchTestCase(tc, p => PropertyValueProvider(tc, p)))
                 {
                     log.Debug("Run test case: " + tc.FullyQualifiedName + " / " + tc.Id + " / "+cats);
                     Console.WriteLine("Starting: " + tc.DisplayName + " from " + tc.Source);
