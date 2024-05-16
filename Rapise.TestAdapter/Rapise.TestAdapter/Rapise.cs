@@ -139,7 +139,8 @@ namespace Rapise.TestAdapter
             string suffix = "";
             if (parallel)
             {
-                suffix = "_" + RandomString(5).ToUpper();
+                
+                suffix = "_" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
                 startInfo.EnvironmentVariables["THREAD"] = suffix;
             }
 
