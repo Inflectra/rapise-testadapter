@@ -180,7 +180,7 @@ namespace Rapise.TestAdapter
                     if (!string.IsNullOrEmpty(htmlPath))
                     {
                         string screenFlowPath = Path.GetDirectoryName(htmlPath);
-                        string zipFileName = "screen_flow_" + tc.FullyQualifiedName + "_" + this.timestamp + ".zip";
+                        string zipFileName = "screen_flow_" + this.timestamp + ".zip";
                         string zipFilePath = Path.Combine(this.testCaseResultDirectory, zipFileName);
                         ZipFile.CreateFromDirectory(screenFlowPath, zipFilePath);
                         Uri zipFileUri = new Uri(zipFilePath, UriKind.Absolute);
