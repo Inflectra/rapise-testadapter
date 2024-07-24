@@ -156,7 +156,7 @@ namespace Rapise.TestAdapter
             log.Debug("Exit code: " + myProc.ExitCode);
 
             this.testFolderPath = System.IO.Path.GetDirectoryName(path);
-            this.testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, Path.GetFileName(this.testFolderPath) + "_" + this.timestamp);
+            this.testCaseResultDirectory = Path.Combine(runContext.TestRunDirectory, Path.GetFileName(this.testFolderPath) + "_" + suffix);
             log.Debug("testFolderPath: " + testFolderPath + " testCaseResultDirectory:" + testCaseResultDirectory);
             Directory.CreateDirectory(this.testCaseResultDirectory);
 
