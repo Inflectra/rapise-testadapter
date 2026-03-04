@@ -141,7 +141,7 @@ Start-Process -FilePath "chrome.exe"
 
 # Download and install latest Rapise
 $RapiseInstallerFile = "Rapise-v${RapiseVersion}.exe"
-$RapiseInstallerUrl = "https://inflectra-rapise-releases.s3-eu-west-1.amazonaws.com/Rapise_${RapiseVersion}/${RapiseInstallerFile}"
+$RapiseInstallerUrl = "https://inflectra-rapise-nightly-installers.s3.eu-north-1.amazonaws.com/Rapise_${RapiseVersion}/${RapiseInstallerFile}"
 Install-Binary -Url $RapiseInstallerUrl -Name $RapiseInstallerFile -ArgumentList ("/silent", "/install","DISABLE_IDE_FEATURES=1")
 
 # Close Rapise instance launched by setup
